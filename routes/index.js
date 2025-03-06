@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const messagesController = require("../controllers/messagesController.js");
 
 const messages = [
   {
@@ -25,33 +26,41 @@ function getMessageTime(timestamp) {
   return `${hours}:${minutes}:${seconds}`;
 }
 
-router.get("/", (req, res) => {
-  res.render("index", { messages: messages, getMessageTime: getMessageTime });
+router.get("/", async (req, res) => {
+  const messages = await messagesController.getMessages();
+  console.log("Messages look like:", messages);
+  res.render("index", {
+    messages: messages,
+    getMessageTime: getMessageTime,
+  });
 });
 
 router.get("/new", (req, res) => {
   res.render("form");
 });
 
-router.post("/new", (req, res) => {
-  console.log(req.body.name);
-  messages.push({
+router.post("/new", async (req, res) => {
+  console.log(req.body);
+
+  await messagesController.addNewMessage({
     text: req.body.message,
-    user: req.body.name,
-    added: new Date(),
+    username: req.body.name,
+    added: getMessageTime(new Date()),
   });
+
   res.redirect("/");
 });
 
-router.get("/message", (req, res) => {
-  const name = req.query.name;
-  const added = req.query.time;
-  const message = messages.find(
-    (message) =>
-      message.user === name && getMessageTime(message.added) === added
-  ).text;
+router.get("/message", async (req, res) => {
+  const id = req.query.id;
 
-  res.render("message", { name, added, message });
+  const [message] = await messagesController.findMessage(id);
+
+  res.render("message", {
+    name: message.username,
+    added: message.added,
+    message: message.text,
+  });
 });
 
 module.exports = router;

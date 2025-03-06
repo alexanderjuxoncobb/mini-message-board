@@ -10,12 +10,10 @@
     <a href="./new">New Message</a>
     <ul>
       <% messages.forEach(message => {%>
-      <li><%=message.user%>: <%= message.text%></li>
-      <li><%= getMessageTime(message.added) %></li>
-      <a
-        href="<%=`/message?name=${message.user}&time=${getMessageTime(message.added)}`%>"
-        >Open</a
-      >
+      <li><%=message.username%>: <%= message.text%></li>
+      <li><%= message.added %></li>
+
+      <a href="<%=`/message?id=${message.id}`%>">Open</a>
       <% }) %>
     </ul>
   </body>
